@@ -12,26 +12,20 @@ contract DataConsumerV3 {
         );
     }
 
-    event GameResult(
-        address indexed gamePlayer,
-        bool win,
-        uint256 winnings
+    event ConsoleLog(
+        string console
     );
 
-    // uint256 public DECIMALS;
+    uint80 public ROUNDID = 0;
 
-    // function getDecimals() public { // 소수점 자리수 찾기
-    //     DECIMALS = dataFeed.decimals();
-    // }
-
-    uint80 public ROUNDID;
-
-    function getLatestData() public { //  ETH/USD 데이터 피드의 최신 데이터의 roundID 저장
+    // ETH/USD 데이터 피드의 최신 데이터의 roundID 저장
+    function getLatestData() public { 
         ( uint80 roundID, , , , ) = dataFeed.latestRoundData(); 
         ROUNDID=roundID;
     }
 
-    function GETROUNDDATA(uint80 _RoundID) public view returns (uint256) { // roundID를 입력하면 ETH/USD를 출력하는 함수
+    // roundID를 입력하면 ETH/USD를 출력하는 함수
+    function GETROUNDDATA(uint80 _RoundID) public view returns (uint256) {
         ( , int256 answer, , , ) = dataFeed.getRoundData(_RoundID);
         uint256 DECIMALS =  10 ** (dataFeed.decimals());
         uint256 answerUnsigned = uint256(answer);
@@ -39,22 +33,35 @@ contract DataConsumerV3 {
         return answerDecimalApplied;
     }
 
-    function getFormerPrice() public view returns (uint256, uint256, uint256) { // 이전 데이터 출력
+     // 이전 데이터 출력
+    function getFormerPrice() public returns (uint256, uint256, uint256) {
+        getLatestData();
         return (GETROUNDDATA(ROUNDID-3), GETROUNDDATA(ROUNDID-2), GETROUNDDATA(ROUNDID-1));
     }
 
-    function inputExpectedPrice(uint256 _expect) public view returns(uint256, uint256, uint256, string memory) { // 예상가 입력, 결과 출력
-        uint256 tenPercent = (GETROUNDDATA(ROUNDID)*10)/100;
-        string memory result;
-        if(GETROUNDDATA(ROUNDID)-_expect >=tenPercent) {
-            result = "Failed";
+    // 예상가 입력, 결과 출력
+    function inputExpectedPrice(uint256 _userExpect) public returns(uint256, bool) { 
+        // ROUNDID 가 설정되지 않았다면 
+        if(ROUNDID == 0){
+            getLatestData();
         }
-        else if(_expect-GETROUNDDATA(ROUNDID) >=tenPercent) {
-            result = "Failed";
+        uint256 currentRoundAssetPrice = GETROUNDDATA(ROUNDID);
+        uint256 positiveTenPercentFigure = (currentRoundAssetPrice + (currentRoundAssetPrice*10)/100);
+        uint256 negativeTenPercentFigure = (currentRoundAssetPrice - (currentRoundAssetPrice*10)/100);
+        // int256 errorFigure = int256(currentRoundAssetPrice - _userExpect);
+        emit ConsoleLog("tenPercentFigure Set");
+        bool win;
+
+        if(_userExpect >= positiveTenPercentFigure) {
+            win = false;
+        }
+        else if(_userExpect <= negativeTenPercentFigure) {
+            win = false;
         }
         else{
-            result ="Successed";
+            win = true;
         }
-        return ( _expect, GETROUNDDATA(ROUNDID), GETROUNDDATA(ROUNDID)-_expect, result);
+
+        return (currentRoundAssetPrice, win);
     }
 }
