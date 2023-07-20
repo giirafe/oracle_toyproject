@@ -9,3 +9,6 @@ typechain-types
 cache
 artifacts
 
+# .env for Infura and Sepolia Keys
+.env
+
