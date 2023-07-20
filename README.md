@@ -26,3 +26,22 @@ npx hardhat run scripts/deploy.js
 5. 입력 가격, 실제 가격, 오차범위, 성공/실패, 되돌려주는/몰수하는 토큰의 양 콘솔에 출력
 
 ```
+
+```
+<초기 환경 설정 및 테스트 프로세스>
+- Remix 환경 기준
+
+1. contracts/DataConsumerV3.sol 을 compile 후 deploy
+
+2. contracts/OracleGame.sol 을 compile 후, 위 DataConsumerV3 deploy한 Address를 인자로 전달하여 deploy
+
+**(OracleGame.sol을 통해 관리자 및 유저 Interaction 진행)**
+
+3. OracleGame.fillInEth()를 일정량의 eth와 함께 실행시켜 OracleGame 컨트랙트에서 사용할 수 있는 eth을 충전해준다.
+
+4. getThreeDaysPrice()를 통해 3일치의 Eth 가격을 확인한다(PreviousPrices event를 통해 확인 가능)
+
+5. placeBet에 베팅할 금액과 함께 예측 가격을 인자로 전달 후 실행시켜 베팅 진행
+
+6. redeemResult()를 통해 사용자가 진행한 가장 최근의 베팅내역의 당첨 여부를 확인한다.
+```
