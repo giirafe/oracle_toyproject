@@ -6,7 +6,7 @@ import "./DataConsumerV3.sol"; // 외부가격 가져오는 ChainLink Contract I
 contract OracleGame {
 
     address payable public owner; 
-    // uint256 constant oracleFee = 0.01 ether;
+    uint256 constant oracleFee = 0.01 ether;
 
     // 각 회차는 gameId를 key로 저장되며 새로운 회차가 진행될 시 gameId를 증가시켜준다.
     // 각 회차마다 사용자는 하나의 Bet을 생성할 수 있고 이를 Double Mapping을 통해 관리한다.
@@ -58,18 +58,17 @@ contract OracleGame {
 
     }
 
-    function getThreeDaysPrices() public  {
-        ChainLinkOracle.getLatestData();
-        // (bool success,) = address(ChainLinkOracle).call{value: oracleFee}(abi.encodeWithSignature("getLatestData()"));
-        // require(success, "Failed to fetch latest data from ChainLinkOracle");
+    // 7.21 기존 Emit을 이용하여 자산의 가격을 Return 했으나 gas fee 절약을 위해 return 사용
+    function getThreeDaysPrices() public view returns(uint256,uint256,uint256) {
         (
             uint256 threeDaysBefore,
             uint256 twoDaysBefore,
             uint256 oneDayBefore
         ) = ChainLinkOracle.getFormerPrice();
         
-        emit PreviousPrices(threeDaysBefore,twoDaysBefore,oneDayBefore);
+        return (threeDaysBefore,twoDaysBefore,oneDayBefore);
     }
+
 
     // 현재의 gameId를 key로 유저는 Betting을 시행한다
     function placeBet(uint _prediction) public payable {
@@ -98,7 +97,7 @@ contract OracleGame {
             win
         ) = ChainLinkOracle.inputExpectedPrice(betInstance.prediction);
 
-        emit ConsoleLog("Input Expected Price Done", 1);
+        // emit ConsoleLog("Input Expected Price Done", 1);
 
         if(win){
             winnings = betInstance.amount * 2;
