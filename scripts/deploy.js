@@ -7,30 +7,16 @@
 const hre = require("hardhat");
 
 async function main() {
-  // const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  // const unlockTime = currentTimestampInSeconds + 60;
 
-  // const lockedAmount = hre.ethers.parseEther("0.001");
-
-  // const lock = await hre.ethers.deployContract("Lock", [unlockTime], {
-  //   value: lockedAmount,
-  // });
-
-  // await lock.waitForDeployment();
-
-  // console.log(
-  //   `Lock with ${ethers.formatEther(
-  //     lockedAmount
-  //   )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  // );
-  
-  const hardhatOracleGame = await hre.ethers.deployContract("OracleGame");
-  await hardhatOracleGame.waitForDeployment();
-  console.log("OracleGame.sol deployed");
-
-  const hardhatDataConsumerV3 = await hre.ethers.deployContract("DataConsumerV3");
-  await hardhatDataConsumerV3.waitForDeployment();
+  const DataConsumerV3 = await hre.ethers.getContractFactory("DataConsumerV3");
+  const hardhatDataConsumerV3 = await DataConsumerV3.deploy();
+  await hardhatDataConsumerV3.deployed();
   console.log("DataConsumerV3.sol deployed");
+
+  const OracleGame = await hre.ethers.getContractFactory("OracleGame");
+  const hardhatOracleGame = await OracleGame.deploy(hardhatDataConsumerV3.address);
+  await hardhatOracleGame.deployed();
+  console.log("OracleGame.sol deployed");
 
 }
 
