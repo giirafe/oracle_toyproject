@@ -14,6 +14,7 @@ contract OracleGame {
 
     event GameResult(
         address indexed gamePlayer,
+        uint256 currentAssetPrice,
         bool win,
         uint256 winnings
     );
@@ -105,11 +106,11 @@ contract OracleGame {
             require(address(this).balance > winnings,"This Service Smart Contract doesn't have enough Balance to pay user");
             payableMsgSender.transfer(winnings);
             betInstance.exists = false;
-            emit GameResult(msg.sender, win, winnings);
+            emit GameResult(msg.sender, currentAssetPrice, win, winnings);
         } else {
             winnings = 0;
             betInstance.exists = false;
-            emit GameResult(msg.sender, win, winnings);
+            emit GameResult(msg.sender, currentAssetPrice, win, winnings);
         }
     }
 

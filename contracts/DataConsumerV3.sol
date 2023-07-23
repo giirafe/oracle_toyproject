@@ -19,7 +19,7 @@ contract DataConsumerV3 {
     // uint80 public ROUNDID = 0;
 
     // ETH/USD 데이터 피드의 최신 데이터의 roundID 저장
-    function getLatestData() public view returns (uint80,int) {
+    function getLatestData() public view returns (uint80,uint256) {
         // prettier-ignore
         (
             uint80 roundID,
@@ -28,7 +28,10 @@ contract DataConsumerV3 {
             /*uint timeStamp*/,
             /*uint80 answeredInRound*/
         ) = dataFeed.latestRoundData();
-        return (roundID, answer);
+        uint256 DECIMALS =  10 ** (dataFeed.decimals());
+        uint256 answerUnsigned = uint256(answer);
+        uint256 answerDecimalApplied = answerUnsigned / DECIMALS;
+        return (roundID, answerDecimalApplied);
     }
 
     // roundID를 입력하면 ETH/USD를 출력하는 함수
@@ -57,8 +60,8 @@ contract DataConsumerV3 {
     function inputExpectedPrice(uint256 _userExpect) public returns(uint256, bool) { 
         
         (
-            uint256 currentRoundAssetPrice,
-
+           ,
+            uint256 currentRoundAssetPrice
         ) = getLatestData();
         uint256 positiveTenPercentFigure = (currentRoundAssetPrice + (currentRoundAssetPrice*10)/100);
         uint256 negativeTenPercentFigure = (currentRoundAssetPrice - (currentRoundAssetPrice*10)/100);
